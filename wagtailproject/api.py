@@ -6,4 +6,5 @@ from wagtail.documents.api.v2.views import DocumentsAPIViewSet
 api_router = WagtailAPIRouter('wagtailapi')
 
 api_router.register_endpoint('pages', PagesAPIViewSet)
+api_router.register_endpoint('images', ImagesAPIViewSet)
 api_router.register_endpoint('documents', DocumentsAPIViewSet)
