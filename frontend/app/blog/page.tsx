@@ -1,32 +1,55 @@
+interface BlogIndexPage {
+  id: number;
+  title: string;
+  intro: string;
+}
+
+interface BlogPage {
+  id: number;
+  meta: {
+    slug: string;
+  };
+  title: string;
+  date: string;
+  intro: string;
+}
+
 export default async function BlogIndex() {
-  const posts = [
+  const indexPages = await fetch(
+    `http://127.0.0.1:8000/api/v2/pages?${new URLSearchParams({
+      type: "blog.BlogIndexPage",
+      slug: "our-blog",
+      fields: "intro",
+    })}`,
     {
-      id: 1,
-      title: "First Post",
-      date: "2024-02-02",
-      intro: "This is the first post",
-      meta: {
-        slug: "first post",
+      headers: {
+        Accept: "application/json",
       },
-    },
+    }
+  ).then((response) => response.json());
+
+  const index: BlogIndexPage = indexPages.items[0];
+
+  const data = await fetch(
+    `http://127.0.0.1:8000/api/v2/pages/?${new URLSearchParams({
+      type: "blog.BlogPage",
+      child_of: index.id.toString(),
+      fields: ["date", "intro"].join(","),
+    })}`,
     {
-      id: 2,
-      title: "Second Post",
-      date: "2024-02-03",
-      intro: "This is the Second post",
-      meta: {
-        slug: "Second post",
+      headers: {
+        Accept: "application/json",
       },
-    },
-  ];
+    }
+  ).then((response) => response.json());
+
+  const posts: BlogPage[] = data.items;
 
   return (
     <main>
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Blog</h1>
-        <div>
-          <p>Some Introduction</p>
-        </div>
+        <h1 className="text-4xl font-bold mb-2">{index.title}</h1>
+        <div dangerouslySetInnerHTML={{ __html: index.intro }}></div>
       </div>
       <ul>
         {posts.map((child) => (
